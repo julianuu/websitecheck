@@ -10,6 +10,11 @@ diff_filter(){
 	diff $1 $2 | sed -e 's/\s*<[^>]*>//g';
 }
 
+notify(){
+	printf "$1\n$2";
+	notify-send "$1" "$2";
+}
+
 
 while true;
 do
@@ -39,19 +44,19 @@ do
 	widiff="$(diff_filter $wifile_old $wifile)";
 
 	if [ "$aadiff" != "" ]
-	then printf "${green} APPROXIMATION ALGORITHMS lec!${nc}\n$aadiff\n";
+	then notify "APPROXIMATION ALGORITHMS lec" "$aadiff";
 	fi
 
 	if [ "$aediff" != "" ]
-	then printf "${green} APPROXIMATION ALGORITHMS ex!${nc}\n$aediff\n";
+	then notify "APPROXIMATION ALGORITHMS ex" "$aediff";
 	fi
 
 	if [ "$msdiff" != "" ]
-	then printf "${green} SET THEORY!${nc}\n$msdiff\n";
+	then notify "SET THEORY" "$msdiff";
 	fi
 
 	if [ "$widiff" != "" ]
-	then printf "${green} WEIGHTED INEQUALITIES!${nc}\n$widiff\n";
+	then notify "WEIGHTED INEQUALITIES" "$widiff";
 	fi
 
 	mv $msfile $msfile_old;
