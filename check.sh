@@ -11,7 +11,7 @@ diff_filter(){
 }
 
 notify(){
-	printf "$1\n$2";
+	printf "$1\n$2\n";
 	notify-send "$1" "$2";
 }
 
