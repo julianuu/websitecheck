@@ -7,7 +7,7 @@ cont=true
 
 diff_filter(){
 	#diff -y -W 150 --suppress-common-lines $1 $2 | sed -e 's/\s*<[^>]*>//g';
-	diff $1 $2 | sed -e 's/\s*<[^>]*>//g';
+	diff $1 $2 | sed -e 's/\s*<[^><]*>//g';
 }
 
 notify(){
