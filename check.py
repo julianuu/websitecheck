@@ -31,38 +31,6 @@ from websites import sites  # import list of tracked websites
     ================
 '''
 
-# Returns the absolute path of the directory in which snapshots of websites are stored.
-# Right now this is "data/" relative to the path of the script.
-def path_to_data_dir():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(script_dir, "data")
-
-# Returns the absolute path of the file in which snapshots of the given website are stored.
-def path_to_file(site):
-    return os.path.join(path_to_data_dir(), site["name"])
-
-# Fetches the website and returns the relevant part as a BeautifulSoup object.
-def fetch_new_data(site):
-    html_doc = urllib.request.urlopen(site["url"])
-    soup = BeautifulSoup(html_doc, 'html.parser')
-    # So far we can only extract tags that have an id. May change this later.
-    return soup.find(id=site["tag_id"]).prettify()
-
-# Fetches the stored snapshot of a website.
-def fetch_old_data(site):
-    try:
-        f = open(path_to_file(site))
-        data = BeautifulSoup(f.read(), 'html.parser').prettify()
-        f.close()
-    except FileNotFoundError:
-        data = ""
-    return data
-
-# Saves the given data as the new snapshot of a website
-def store_data(site, data):
-    f = open(path_to_file(site), "w")
-    f.write(data)
-    f.close()
 
 # Notification function. Currently sends an email via some Gmail account.
 def notify(site, old_data, new_data):
@@ -103,9 +71,6 @@ def notify(site, old_data, new_data):
     ===============
 '''
 
-data_dir = path_to_data_dir()
-if not os.path.exists(data_dir):
-    os.makedirs(data_dir)
 
 # Temporary ugliness to avoid commiting the password.
 passwd = getpass("Please enter password for websitecheck101@gmail.com: ")
