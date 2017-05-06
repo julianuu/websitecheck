@@ -67,7 +67,6 @@ def store_data(site, data):
 # Notification function. Currently sends an email via some Gmail account.
 def notify(site, old_data, new_data):
     if old_data == new_data:
-        print("Did not change.")    # for debugging purposes
         return
 
     me = "websitecheck101@gmail.com"
@@ -122,7 +121,10 @@ for site in sites:
     old_data = fetch_old_data(site)
     new_data = fetch_new_data(site)
 
-    notify(site, old_data, new_data)
+    if old_data == new_data:
+        print("Did not change.")    # for debugging purposes
+    else:
+        notify(site, old_data, new_data)
 
-    # Store new date (commented out for testing purposes)
-    store_data(site, new_data)
+        # Store new date (comment out for testing purposes)
+        store_data(site, new_data)
