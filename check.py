@@ -83,13 +83,5 @@ for site in sites:
     print()
     print(site["name"] + ": ", end = '')
 
-    old_data = fetch_old_data(site)
-    new_data = fetch_new_data(site)
+    site.check()
 
-    if old_data == new_data:
-        print("Did not change.")    # for debugging purposes
-    else:
-        notify(site, old_data, new_data)
-
-        # Store new date (comment out for testing purposes)
-        store_data(site, new_data)

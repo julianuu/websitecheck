@@ -4,8 +4,6 @@
     while ignoring Peter Scholze's newest awards.
 '''
 
-# Returns the absolute path of the directory in which snapshots of websites are stored.
-# Right now this is "data/" relative to the path of the script.
 def path_to_data_dir():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(script_dir, "data")
@@ -14,7 +12,6 @@ data_dir = path_to_data_dir()
 if not os.path.exists(data_dir):
     os.makedirs(data_dir)
 
-# Returns the absolute path of the file in which snapshots of the given website are stored.
 def path_to_file(filename):
     return os.path.join(path_to_data_dir(), filename)
 
@@ -32,7 +29,7 @@ class Check:
         return compare()
     
 
-class Tag_content(Check):
+class Tag(Check):
     _tag_id
     def __init__(self, tag_id):
         self._tag_id = tag_id
@@ -41,10 +38,17 @@ class Tag_content(Check):
 
         soup_old = BeautifulSoup(_html_doc_old, 'html.parser')
         soup_new = BeautifulSoup(_html_doc, 'html.parser')
-    # So far we can only extract tags that have an id. May change this later.
-        soup_old.find(id=_tag_id).prettify()
-        soup_new.find(id=_tag_id).prettify()
+        text_old = soup_old.find(id=_tag_id).prettify()
+        text_new = soup_new.find(id=_tag_id).prettify()
 
+#diff would be nicer
+        if text_old != tex_old
+        return text_new
+
+class Pdf_links(Check):
+    _tag_id
+    def __init__(self, tag_id):
+        self._tag_id = tag_id
 
 class Website:
     def __init__(self, name, url, checks):
@@ -53,14 +57,12 @@ class Website:
         self.checks = checks
         self._dir = path_to_file(name)
         self._filename = os.path.join(dir,name)
-# Fetches the website and returns the relevant part as a BeautifulSoup object.
 
     def store_data():
         f = open(filename, "w")
         f.write(html_doc)
         f.close()
 
-    # Fetches the stored snapshot of a website.
     def _fetch_old_data():
         try:
             f = open(filename)
@@ -69,7 +71,6 @@ class Website:
         except FileNotFoundError: 
 
 
-            #data = BeautifulSoup(f.read(), 'html.parser').prettify()
     def check(self):
         html_doc = urllib.request.urlopen(url)
         fetch_old_data()
@@ -88,5 +89,3 @@ class Website:
 
         for notifier in notifiers:
             notifier.notify(notification)
-
-# Saves the given data as the new snapshot of a website

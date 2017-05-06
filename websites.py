@@ -4,10 +4,5 @@
     while ignoring Peter Scholze's newest awards.
 '''
 
-sites = [
-        {
-            "name" : "weighted_inequalities",
-            "url" : "http://www.math.uni-bonn.de/ag/ana/SoSe2017/weights/",
-            "tag_id" : "col1_content"
-        }
-        ]
+Check Tag col1_content("col1_content")
+Website website("weighted_inequalities", "http://www.math.uni-bonn.de/ag/ana/SoSe2017/weights/", [col1_content])
