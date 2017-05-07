@@ -173,10 +173,9 @@ class Website:
         notification=""
 
         i=0
-
+        change = False
         for check in self.checks:
             #directory for every check in case if they need one
-            change = False
             checkfolder = os.path.join(self.folder,str(i))
             notification = check.check(self._html_doc_new, self._html_doc_old, checkfolder)
             i+=1 
@@ -185,5 +184,5 @@ class Website:
             for notifier in self.notifiers:
                 notifier.notify(self.name, notification)
 
-            if change:
-                store_data(self._html_name,self._html_doc_new)
+        if change:
+            store_data(self._html_name,self._html_doc_new)
