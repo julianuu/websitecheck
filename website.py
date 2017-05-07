@@ -152,7 +152,8 @@ class Website:
             os.makedirs(folder)
         self.folder = folder
         self._html_name = os.path.join(self.folder,'index.html')
-        self._html_doc = urllib.request.urlopen(self.url)
+        with urllib.request.urlopen(self.url) as response:
+            self._html_doc = response.read()
         self._html_doc_old = fetch_old_data(self._html_name)
 
         notification=""
