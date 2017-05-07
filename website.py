@@ -22,10 +22,21 @@ import os   # for determining file and directory paths
 
 class Notification:
     def __init__(self):
+        self.change = False
         self.text = ''
         self.html = ''
    
-def get_tag_content(html,tag_id):
+def get_content_by_tag(html,tag_name):
+    soup = BeautifulSoup(html, 'html.parser')
+    tag = soup.find(tag_name)
+    if tag:
+        content = tag.prettify()
+    else:
+        content = ''
+
+    return content
+
+def get_content_by_id(html,tag_id):
     soup = BeautifulSoup(html, 'html.parser')
     #does not work at empty input:
     #content = soup.find(id=tag_id).prettify()
@@ -39,50 +50,53 @@ def get_tag_content(html,tag_id):
 
 #standard check type, i.e. checking change within a tag
 class Check:
-    def __init__(self, tag_id):
-        self._tag_id = tag_id
+    def __init__(self, tag):
+        self.tag = tag
 
-    def compare(self):
-        old_data = get_tag_content(self._html_doc_old, self._tag_id)
-        new_data = get_tag_content(self._html_doc, self._tag_id)
+    def filter_relevant(self,data):
+        return get_content_by_id(data, self.tag)
 
+    def difference(self,old,new):
         notification = Notification()
-        notification.text = new_data    # to be improved, e.g. use difflib's context_diff or similar
-
-#diff would be nicer
-        if old_data != new_data:
+        if old != new:
+            #diff would be nicer
+            notification.text = new    # to be improved, e.g. use difflib's context_diff or similar
             notification.change = True
 
         return notification
 
-    def check(self, html_doc, html_doc_old, folder):
-        self._html_doc = html_doc
+    def compare(self):
+        old_data = self.filter_relevant(self._html_doc_old)
+        new_data = self.filter_relevant(self._html_doc_new)
+        return self.difference(old_data, new_data)
+
+    def check(self, html_doc_new, html_doc_old, folder):
+        self._html_doc_new = html_doc_new
         self._html_doc_old = html_doc_old
         #pdfcheck needs a directory where it can store the pdfs
         self._folder = folder
 
         return self.compare()
  
+class Check_tag(Check):
+    def filter_relevant(self,data):
+        return get_content_by_tag(data, self.tag)
+
 class Tag_check_htmldiff(Check):
-    def compare(self):
-        old_data = get_tag_content(self._html_doc_old, self._tag_id)
-        new_data = get_tag_content(self._html_doc, self._tag_id)
-
+    def difference(old,new):
         notification = Notification()
-        notification.text = new_data    # to be improved, e.g. use difflib's context_diff or similar
-        notification.html = HtmlDiff().make_file(old_data.splitlines(True), new_data.splitlines(True), context=True, numlines=5)
-
-#diff would be nicer
-        if old_data != new_data:
+        notification.html = HtmlDiff().make_file(old.splitlines(True), new.splitlines(True), context=True, numlines=5)
+        if old != new:
+            #diff would be nicer
+            notification.text = new    # to be improved, e.g. use difflib's context_diff or similar
             notification.change = True
 
         return notification
 
-
 #look for links to pdf within tag, check them for change
 class Pdfs_check(Check):
-    def __init__(self, tag_id):
-        self._tag_id = tag_id
+    def difference(self):
+        return Notification()
 
 #simple standard notification
 class Notifier:
@@ -153,7 +167,7 @@ class Website:
         self.folder = folder
         self._html_name = os.path.join(self.folder,'index.html')
         with urllib.request.urlopen(self.url) as response:
-            self._html_doc = response.read()
+            self._html_doc_new = response.read().decode('utf-8')
         self._html_doc_old = fetch_old_data(self._html_name)
 
         notification=""
@@ -164,7 +178,7 @@ class Website:
             #directory for every check in case if they need one
             change = False
             checkfolder = os.path.join(self.folder,str(i))
-            notification = check.check(self._html_doc, self._html_doc_old, checkfolder)
+            notification = check.check(self._html_doc_new, self._html_doc_old, checkfolder)
             i+=1 
             if notification.change:
                 change = True
@@ -172,4 +186,4 @@ class Website:
                 notifier.notify(self.name, notification)
 
             if change:
-                store_data(self._html_name,self._html_doc)
+                store_data(self._html_name,self._html_doc_new)
