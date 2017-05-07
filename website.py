@@ -26,16 +26,6 @@ class Notification:
         self.text = ''
         self.html = ''
    
-def get_content_by_tag(html,tag_name):
-    soup = BeautifulSoup(html, 'html.parser')
-    tag = soup.find(tag_name)
-    if tag:
-        content = tag.prettify()
-    else:
-        content = ''
-
-    return content
-
 def get_content_by_id(html,tag_id):
     soup = BeautifulSoup(html, 'html.parser')
     #does not work at empty input:
@@ -53,8 +43,20 @@ class Check:
     def __init__(self, tag):
         self.tag = tag
 
+    def soup_find(self, soup,tag_id):
+        return soup.find(id=tag_id)
+
+    def get_by_tag(self, html,tag_info):
+        soup = BeautifulSoup(html, 'html.parser')
+        tag = self.soup_find(soup, tag_info)
+        if tag:
+            content = tag.prettify()
+        else:
+            content = ''
+        return content
+
     def filter_relevant(self,data):
-        return get_content_by_id(data, self.tag)
+        return self.get_by_tag(data, self.tag)
 
     def difference(self,old,new):
         notification = Notification()
@@ -78,9 +80,9 @@ class Check:
 
         return self.compare()
  
-class Check_tag(Check):
-    def filter_relevant(self,data):
-        return get_content_by_tag(data, self.tag)
+class Check_tag_name(Check):
+    def soup_find(self,soup,tag_name):
+        return soup.find(tag_name)
 
 class Tag_check_htmldiff(Check):
     def difference(old,new):
