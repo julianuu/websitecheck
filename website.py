@@ -22,12 +22,19 @@ import os   # for determining file and directory paths
 
 class Notification:
     def __init__(self):
-        text = ''
-        html = ''
+        self.text = ''
+        self.html = ''
    
 def get_tag_content(html,tag_id):
     soup = BeautifulSoup(html, 'html.parser')
-    content = soup.find(id=tag_id).prettify()
+    #does not work at empty input:
+    #content = soup.find(id=tag_id).prettify()
+    tag = soup.find(id=tag_id)
+    if tag:
+        content = tag.prettify()
+    else:
+        content = ''
+
     return content
 
 #standard check type, i.e. checking change within a tag
@@ -79,8 +86,8 @@ class Pdfs_check(Check):
 
 #simple standard notification
 class Notifier:
-    def notify(self, notification):
-        print(notification.text)
+    def notify(self, name, notification):
+        print(name+": "+notification.text)
 
 
 #notify_email = input("Please enter email address to notify: ") # Of course we may also change this.
@@ -116,8 +123,8 @@ class Mail_notifier:
         print("Email sent.")    # for debugging purposes
 
 #to store the html file. Checks take care of their data themselves if necessary. Except clearly every check needs the html file
-def store_data(filename, data):
-    f = open(name, "w")
+def store_data(path, data):
+    f = open(path, "w")
     f.write(data)
     f.close()
 
@@ -141,6 +148,8 @@ class Website:
         self.notifiers = notifiers
 
     def check(self,folder):
+        if not os.path.exists(folder):
+            os.makedirs(folder)
         self.folder = folder
         self._html_name = os.path.join(self.folder,'index.html')
         self._html_doc = urllib.request.urlopen(self.url)
@@ -158,8 +167,8 @@ class Website:
             i+=1 
             if notification.change:
                 change = True
-            for notifier in notifiers:
-                notifier.notify(name, notification)
+            for notifier in self.notifiers:
+                notifier.notify(self.name, notification)
 
             if change:
                 store_data(self._html_name,self._html_doc)
