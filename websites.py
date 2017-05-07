@@ -4,5 +4,10 @@
     while ignoring Peter Scholze's newest awards.
 '''
 
-Check Tag col1_content("col1_content")
-Website website("weighted_inequalities", "http://www.math.uni-bonn.de/ag/ana/SoSe2017/weights/", [col1_content])
+from website import Website, Check, Pdfs_check, Notifier, Mail_notifier
+
+
+wi = Website("weighted_inequalities", "http://www.math.uni-bonn.de/ag/ana/SoSe2017/weights/", [Check("col1_content")], [Notifier()])
+#wi = Website("weighted_inequalities", "http://www.math.uni-bonn.de/ag/ana/SoSe2017/weights/", [Check("col1_content")], [Notifier(), Mail_notifier("julian.weigt@>mail.com")])
+
+sites = [ wi ]
