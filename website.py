@@ -20,6 +20,8 @@ from getpass import getpass # for entering passwords
 
 import os   # for determining file and directory paths
 
+import re
+
 class Notification:
     def __init__(self):
         self.change = False
@@ -85,7 +87,7 @@ class Check_tag_name(Check):
         return soup.find(tag_name)
 
 class Tag_check_htmldiff(Check):
-    def difference(old,new):
+    def difference(self, old,new):
         notification = Notification()
         notification.html = HtmlDiff().make_file(old.splitlines(True), new.splitlines(True), context=True, numlines=5)
         if old != new:
@@ -96,8 +98,22 @@ class Tag_check_htmldiff(Check):
         return notification
 
 #look for links to pdf within tag, check them for change
+def find_pdflinks(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    pdflink_tags = soup.find_all(re.compile('([^/]/)*[^/]*\.pdf'))
+    pdflinks = []
+    for tag in pdflink_tags:
+        link = tag['href']
+        #find the *.pdf and call it 'name'
+        match = re.search('([^/]/)*(?P<name>[^/]*\.pdf)',link)
+        pdflinks.append([match.group['name'], name])
+    return pdflinks
+
+
 class Pdfs_check(Check):
-    def difference(self):
+    def difference(self, old, new):
+        pdflinks_old = find_pdflinks(old)
+        pdflinks_new = find_pdflinks(new)
         return Notification()
 
 #simple standard notification
