@@ -1,9 +1,3 @@
-'''
-    Right now this is just a sample configuration:
-    It tracks the course website of Pavel's Weighted inequalities
-    while ignoring Peter Scholze's newest awards.
-'''
-
 from website import Website, Check, Check_tag_name, Pdfs_check, Notifier, Mail_notifier
 
 

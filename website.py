@@ -1,8 +1,3 @@
-'''
-    Right now this is just a sample configuration:
-    It tracks the course website of Pavel's Weighted inequalities
-    while ignoring Peter Scholze's newest awards.
-'''
 import urllib.request   # for fetching websites
 '''
     BeautifulSoup is not in the Python standard library.
