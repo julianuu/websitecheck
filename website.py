@@ -166,36 +166,21 @@ def fetch_old_data(filename):
     return doc
 
 
-class Website:
-    def __init__(self, name, url, checks, notifiers):
+class Tracker:
+    def __init__(self, name, url, selectors, notifier):
         self.name = name
         self.url = url
-        #list of checks to be performed for this website
-        self.checks = checks
-        self.notifiers = notifiers
+        self.selectors = selectors
+        self.notifier = notifier
 
-    def check(self,folder):
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-        self.folder = folder
-        self._html_name = os.path.join(self.folder,'index.html')
+    def check(self):
         with urllib.request.urlopen(self.url) as response:
-            self._html_doc_new = response.read().decode('utf-8')
-        self._html_doc_old = fetch_old_data(self._html_name)
+            new_data = BeautifulSoup(response, 'html.parser')
 
-        notification=""
+        for s in selectors:
+            new_data = s[1](new_data)
 
-        i=0
-        change = False
-        for check in self.checks:
-            #directory for every check in case if they need one
-            checkfolder = os.path.join(self.folder,str(i))
-            notification = check.check(self._html_doc_new, self._html_doc_old, checkfolder)
-            i+=1 
-            if notification.change:
-                change = True
-            for notifier in self.notifiers:
-                notifier.notify(self.name, notification)
+        selstr = selectors_to_string(selectors)
+        my_cache_dir = os.path.join(cache_dir, self.url.replace("/", "%2F"), selstr)
 
-        if change:
-            store_data(self._html_name,self._html_doc_new)
+        notifier(this, new_data, my_cache_dir)
