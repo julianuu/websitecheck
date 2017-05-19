@@ -44,7 +44,7 @@ class Tracker:
                 my_selectionsDone = selectionsDone + [a]
             elif isinstance(a, Notifier):   # This action is a notifier.
                 my_data = data
-                my_selectionsdone = selectionsDone
+                my_selectionsDone = selectionsDone
 
                 # determine cache directory for the current query
                 selstr = '.'.join(list(map(lambda s: repr(s), selectionsDone)))
