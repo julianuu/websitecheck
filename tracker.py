@@ -13,7 +13,8 @@ from email.mime.text import MIMEText
 
 from getpass import getpass # for entering passwords
 
-import os   # for determining file and directory paths
+from os import listdir
+from os.path import join, isfile   # for determining file and directory paths
 
 import re   # regular expressions
 
@@ -38,20 +39,48 @@ class Pdfs_check(Check):
 
 
 class Tracker:
-    def __init__(self, name, url, selectors, notifier):
+    def __init__(self, name, url, actions):
         self.name = name
         self.url = url
-        self.selectors = selectors
-        self.notifier = notifier
-
+        self.actions = actions
+    
     def check(self):
         with urllib.request.urlopen(self.url) as response:
-            new_data = BeautifulSoup(response, 'html.parser')
+            new_data = [BeautifulSoup(response, 'html.parser')]
 
-        for s in selectors:
-            new_data = s[1](new_data)
+        self.__iterate__(new_data, [], self.actions)
 
-        selstr = selectors_to_string(selectors)
-        tracker_cache_dir = os.path.join(cache_dir, self.url.replace("/", "%2F"), selstr)
 
-        notifier(this, new_data, tracker_cache_dir)
+    def __iterate__(data, selectionsDone, actionsPending):
+        if len(actionsPending) == 0:
+            return
+
+        actions = actionsPending[0]
+        if not isinstance(actions, list):
+            actions = [actions]
+
+        appended = False
+        
+        for action in actions:
+            if isinstance(a, Selector):
+                my_data = a.select(data)
+                selectionsDone.append(action)
+            elif isinstance(a, Notifier):
+                my_data = data
+
+                selstr = '.'.join(list(map(lambda a: repr(a), actions)))
+                old_dir = os.path.join(cache_dir, self.url.replace("/", "%2F"), selstr)
+
+                old_paths = sorted([f for f in listdir(old_dir) if isfile(join(old_dir,f))], key=int)
+                old_data = []
+                for p in old_paths:
+                    with open(p, 'r') as old_file:
+                        old_data.append(BeautifulSoup(old_file.read(), 'html.parser'))
+
+                a.notify(self, new_data, old_data)
+
+                # TODO: Save acquired data.
+
+            self.__iterate__(my_data, selectionsDone, actionsPending[:-1])
+            if appended:
+                actionsDone.pop()

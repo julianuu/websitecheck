@@ -24,7 +24,7 @@ def path_to_file(filename):
     return os.path.join(data_dir, filename)
 
 
-from websites import sites  # import list of tracked websites
+from config import sites  # import list of tracked websites
 
 '''
     ================

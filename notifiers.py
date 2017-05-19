@@ -6,6 +6,13 @@ import smtplib
 # Import the email modules we'll need
 from email.mime.text import MIMEText
 
+from abc import ABC, abstractmethod
+
+class Notifier(ABC):
+    @abstractmethod
+    def notify():
+        pass
+
 def send_mail(tracker, plain = "", html = None, attachments = []):
     # Temporary solution to avoid using a local SMTP server.
     me = "websitecheck101@gmail.com"
