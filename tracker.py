@@ -1,5 +1,3 @@
-from config import cache_dir    # directory of websitecheck's cache
-
 import urllib.request  # for fetching websites
 '''
     BeautifulSoup is not in the Python standard library.
@@ -20,8 +18,9 @@ class Tracker:
         self.url = url
         self.actions = actions
 
-
-    def check(self):
+    def check(self, w_dir):
+        # set working dir, I feel like this should not be determined by the class itself but rather by some higher instance
+        self.w_dir = w_dir
         # fetch new data
         with urllib.request.urlopen(self.url) as response:
             data = [BeautifulSoup(response, 'html.parser')]
@@ -40,7 +39,7 @@ class Tracker:
 
         for a in actions:
             if isinstance(a, Selector):     # This action is a selector.
-                my_data = a.select(data)    # call thee selector
+                my_data = a.select(data)    # call the selector
                 my_selectionsDone = selectionsDone + [a]
             elif isinstance(a, Notifier):   # This action is a notifier.
                 my_data = data
@@ -48,7 +47,7 @@ class Tracker:
 
                 # determine cache directory for the current query
                 selstr = '.'.join(list(map(lambda s: repr(s), selectionsDone)))
-                my_dir = join_path(cache_dir, self.url.replace("/", "%2F"), selstr)
+                my_dir = join_path(self.w_dir, self.url.replace("/", "%2F"), selstr)
 
                 # fetch old data
                 old_paths = sorted([join_path(my_dir, f) for f in listdir(my_dir)
@@ -59,7 +58,7 @@ class Tracker:
                         old_data.append(BeautifulSoup(old_file, 'html.parser'))
 
                 # call the notifier
-                a.notify(self, selectionsDone, old_data, data)
+                a.notify(self, selectionsDone, old_data, data) #why is there a 'self' here?
 
                 # remove old snippets from cache
                 for p in old_paths:

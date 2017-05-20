@@ -11,18 +11,21 @@ class Selector:
         raise NotImplementedError("Please implement this method")
 
 
-# Selects the first tag with the given id.
-# (Html id's should be unique in a document.)
-class Id(Selector):
-    def __init__(self, html_id):
-        self.html_id = html_id
+# Passes on arguments to soup.findAll, i.e. you can call the constructor with the same arguments as you would call soup.findAll
+class FindAll(Selector):
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
 
     def select(self, data):
         for soup in data:
-            el = soup.find(id=self.html_id)
-            if el != None:
-                return [el]
-        return []
+            els = soup.findAll(*args,**kwargs)
+            return els
 
     def __repr__(self):
-        return 'id(' + self.html_id + ')'
+        arguments=''
+        for arg in self.args:
+            arguments = arguments+', '+arg
+        for kw in self.kwargs:
+            arguments = arguments+', '+kw+':'+self.kwargs[kw]
+        return 'findAll(' + arguments + ')'
