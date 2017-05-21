@@ -1,5 +1,6 @@
-from websites import target_address
+#from config import target_address #This does not work atm because we need to import this file into config.py and cant import it backe again I think
 
+from bs4 import BeautifulSoup   # for HTML parsing
 # Import smtplib for the actual sending function
 import smtplib
 
@@ -7,11 +8,50 @@ import smtplib
 from email.mime.text import MIMEText
 
 from abc import ABC, abstractmethod
+from difflib import unified_diff
+import gi
+gi.require_version('Notify', '0.7')
+from gi.repository import Notify #desktop notifications, requires python-gobject
 
 class Notifier(ABC):
     @abstractmethod
     def notify():
         pass
+
+class Diff(Notifier):
+    def notify(self, tracker, sels, data_old, data_new):
+        l_old = len(data_old)
+        l_new = len(data_new)
+        l = min(l_old,l_new)
+        for i in range(0,l):
+            text_old = data_old[i].prettify().splitlines()
+            text_new = data_new[i].prettify().splitlines()
+            msg = ''
+            o = 2
+            i = 0
+            for line in unified_diff(text_old, text_new, n=0):
+                i+=1
+                if i>o: #skip explanation/descritption of the diff
+                    msg+=' '.join(line.split())+'\n' #remove all those tabs
+            if i>o: #only notify if the strings actually differ
+                print(tracker.name+':\n'+msg)
+                Notify.init(tracker.name)
+                n = Notify.Notification.new(tracker.name,msg)
+                n.show()
+        if l_new>l_old: #data has been adder
+            msg = 'Entries have been added:\n'
+            for i in range(l_old,l_new):
+                msg += data_new[i].prettify()
+            print(tracker.name+':\n'+msg)
+            Notify.init(tracker.name)
+            n = Notify.Notification.new(tracker.name,msg)
+            n.show()
+        elif l_new<l_old: #data has been removed
+            pass
+            
+
+
+
 
 def send_mail(tracker, plain = "", html = None, attachments = []):
     # Temporary solution to avoid using a local SMTP server.

@@ -19,7 +19,7 @@ class FindAll(Selector):
 
     def select(self, data):
         for soup in data:
-            els = soup.findAll(*args,**kwargs)
+            els = soup.findAll(*self.args,**self.kwargs)
             return els
 
     def __repr__(self):
