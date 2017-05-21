@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup   # for HTML parsing
 
 # for file system operations
 from os import listdir, remove, makedirs
-from os.path import isfile,exists
+from os.path import isfile,exists,basename
 from os.path import join as join_path
 
 from selectors import Selector
@@ -49,13 +49,13 @@ class Tracker:
                 my_selectionsDone = selectionsDone
 
                 # determine cache directory for the current query
-                selstr = '.'.join(list(map(lambda s: repr(s).replace(' ',''), selectionsDone)))
+                selstr = '.'.join(list(map(lambda s: repr(s).replace(' ',''), selectionsDone))) #I am afraid of spaces
                 my_dir = join_path(self.w_dir, self.url.replace("/", "%2F"), selstr) 
 
                 if exists(my_dir):
                     # fetch old data
-                    old_paths = sorted([join_path(my_dir, f) for f in listdir(my_dir) if isfile(join_path(my_dir,f))])
-                    #old_paths = sorted([join_path(my_dir, f) for f in listdir(my_dir) if isfile(join_path(my_dir,f))], key=int)
+                    old_files = sorted([f for f in listdir(my_dir) if isfile(join_path(my_dir,f))], key=int)
+                    old_paths = [join_path(my_dir, f) for f in old_files]
                     old_data = []
                     for p in old_paths:
                         with open(p, 'r') as old_file:
