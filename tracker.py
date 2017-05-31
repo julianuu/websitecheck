@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup   # for HTML parsing
 
 # for file system operations
 from os import listdir, remove, makedirs
-from os.path import isfile,exists,basename
+from os.path import isfile, exists, basename
 from os.path import join as join_path
 
 from selectors import Selector
@@ -21,8 +21,8 @@ class Tracker:
         self.url = url
         self.actions = actions
 
+
     def check(self, w_dir):
-        # set working dir, I feel like this should not be determined by the class itself but rather by some higher instance
         self.w_dir = w_dir
         # fetch new data
         with urllib.request.urlopen(self.url) as response:
@@ -61,7 +61,7 @@ class Tracker:
                         with open(p, 'r') as old_file:
                             old_data.append(BeautifulSoup(old_file, 'html.parser')) 
                     # call the notifier
-                    a.notify(self, selectionsDone, old_data, data) #why is there a 'self' here?  
+                    a.notify(name, url, selectionsDone, old_data, my_data)
                     
                     # remove old snippets from cache
                     for p in old_paths:

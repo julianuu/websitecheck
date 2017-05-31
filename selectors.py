@@ -18,14 +18,11 @@ class FindAll(Selector):
         self.kwargs = kwargs
 
     def select(self, data):
+        els = []
         for soup in data:
-            els = soup.findAll(*self.args,**self.kwargs)
-            return els
+            els = els + soup.findAll(*self.args,**self.kwargs)
+        return els
 
     def __repr__(self):
-        arguments=''
-        for arg in self.args:
-            arguments = arguments+', '+arg
-        for kw in self.kwargs:
-            arguments = arguments+', '+kw+':'+self.kwargs[kw]
+        arguments = ', '.join(self.args + ['{}:{}'.format(k,v) for k,v in self.kwargs.iteritems()])
         return 'findAll(' + arguments + ')'
