@@ -49,7 +49,7 @@ class Tracker:
                 my_selectionsDone = selectionsDone
 
                 # determine cache directory for the current query
-                selstr = '.'.join(list(map(lambda s: repr(s).replace(' ',''), selectionsDone))) #I am afraid of spaces
+                selstr = '.'.join(list(map(lambda s: repr(s), selectionsDone)))
                 my_dir = join_path(self.w_dir, self.url.replace("/", "%2F"), selstr) 
 
                 if exists(my_dir):
