@@ -24,5 +24,5 @@ class FindAll(Selector):
         return els
 
     def __repr__(self):
-        arguments = ', '.join(self.args + ['{}:{}'.format(k,v) for k,v in self.kwargs.iteritems()])
+        arguments = ', '.join(list(self.args) + ['{}:{}'.format(k,v) for k,v in self.kwargs.items()])
         return 'findAll(' + arguments + ')'
