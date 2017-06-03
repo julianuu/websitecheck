@@ -61,7 +61,7 @@ class Tracker:
                         with open(p, 'r') as old_file:
                             old_data.append(BeautifulSoup(old_file, 'html.parser')) 
                     # call the notifier
-                    a.notify(name, url, selectionsDone, old_data, my_data)
+                    a.notify(self.name, self.url, selectionsDone, old_data, my_data)
                     
                     # remove old snippets from cache
                     for p in old_paths:
