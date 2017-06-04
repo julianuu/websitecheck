@@ -44,20 +44,20 @@ class Tracker:
                 data_new = a.select(data)    # call the selector
                 my_selectionsDone = selectionsDone + [a]
             elif isinstance(a, Checker):   # This action is a notifier.
-                data_new = data
                 my_selectionsDone = selectionsDone
 
                 # determine cache directory for the current query
                 selstr = '.'.join(list(map(lambda s: repr(s), selectionsDone)))
-                c_dir = join_path(self.w_dir, self.url.replace("/", "%2F"), selstr) 
+                c_dir = join_path(self.w_dir, self.url.replace("/", "%2F"), selstr, repr(a)) 
 
                 if exists(c_dir):
-                    a.check(self.name, self.url, data_new, c_dir)
+                    a.check(self.name, self.url, data, c_dir)
 
                 else:
                     print("New website added: "+self.name)
                     makedirs(c_dir)
-                    a.check(self.name, self.url, data_new, c_dir, silent=True)
+                    a.check(self.name, self.url, data, c_dir, silent=True)
 
+                data_new = data
 
             self.__iterate__(data_new, my_selectionsDone, actionsPending[1:])

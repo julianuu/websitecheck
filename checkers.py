@@ -12,42 +12,49 @@ import gi
 gi.require_version('Notify', '0.7')
 from gi.repository import Notify #desktop notifications, requires python-gobject
 
+import urllib.request  # for fetching files
+from urllib.parse import quote
+
+import re
+
 #file handling
 from os import listdir, remove
-from os.path import isfile, basename, join as join_path
+from os.path import isfile, basename, join as join_path, dirname
 
+
+def empty(path):
+    for p in [join_path(path,f) for f in listdir(path) if isfile(join_path(path,f))]:
+        remove(p)
 
 class Checker:
-    def read(self, f):
-        return BeautifulSoup(f, 'html.parser')
-
-    def to_string(self, o):
-        return o.prettify()
-
     def get_old_data(self, path):
         old_files = sorted([f for f in listdir(path) if isfile(join_path(path,f))], key=int)
         old_paths = [join_path(path, f) for f in old_files]
         old_data = []
         for p in old_paths:
-            with open(p, 'r') as old_file:
-                old_data.append(self.read(old_file)) 
-            remove(p)
+            with open(p, 'r') as f: 
+                old_data.append(BeautifulSoup(f, 'html.parser')) 
         return old_data
 
-    def get_new_data(self, data, path):
+    def get_new_data(self, data, url):
         return data
 
     def save(self, path, data):
         for idx, snippet in enumerate(data):
             with open(join_path(path, str(idx)), 'w') as new_file:
-                new_file.write(self.to_string(snippet))
+                new_file.write(snippet.prettify())
 
     def check(self, name, url, data, dir_l, silent=False):
         data_old = self.get_old_data(dir_l)
         data_new = self.get_new_data(data, url)
         if not silent: self.notify(name, url, data_old, data_new)
+        empty(dir_l)
         self.save(dir_l, data_new)
 
+def dnotify(*args, **kwargs):
+    Notify.init('websitecheck')
+    n=Notify.Notification.new(*args, **kwargs)
+    n.show()
 
 class Diff(Checker):
     def notify(self, name, url, data_old, data_new):
@@ -66,20 +73,68 @@ class Diff(Checker):
                     msg+=' '.join(line.split())+'\n' #remove all those tabs
             if i>o: #only notify if the strings actually differ
                 print(name+':\n'+msg)
-                Notify.init(name)
-                n = Notify.Notification.new(name,msg)
-                n.show()
+                dnotify(name,msg)
         if l_new>l_old: #data has been added
-            msg = 'Entries have been added:\n'
+            msg = 'Occurrences have been added:\n'
             for i in range(l_old,l_new):
                 msg += data_new[i].prettify()
             print(name+':\n'+msg)
-            Notify.init(tracker.name)
-            n = Notify.Notification.new(tracker.name,msg)
-            n.show()
+            dnotify(name,msg)
         elif l_new<l_old: #data has been removed
             pass
             #TODO: maybe do something here
+    def __repr__(self):
+        return 'Diff()'
+
+
+class Filechange(Checker):
+    def __init__(self, ftype):
+        self.ftype = ftype
+
+    def get_old_data(self, path):
+        names = listdir(path)
+        data = []
+        for name in names:
+            with open(join_path(path,name), 'rb') as f:
+                data.append({'name':name, 'file':f.read(), 'removed':True})
+        return data
+
+    def get_new_data(self, data, url):
+        new_data = []
+        for soup in data:
+            for tag in soup.findAll('a', href=re.compile('.*\.'+self.ftype)):
+                link = quote(tag['href'], safe="%/:=&?~#+!$,;'@()*[]") #whitespaces, but so that quote doesn't change the ':' in 'http://…'
+                name = basename(link)
+                if not link.startswith('http'):
+                    link = join_path(dirname(url),link)
+                response = urllib.request.urlopen(link)
+                new_data.append({'name':name, 'file':response.read(), 'new':True})
+        return new_data
+    
+    def save(self, path, data):
+        for entry in data:
+            with open(join_path(path,entry['name']), 'wb') as new_file:
+                new_file.write(entry['file'])
+
+    def notify(self, name, url, data_old, data_new):
+        for file_old in data_old:
+            for file_new in data_new:
+                if file_old['name'] == file_new['name']:
+                    file_old['removed'] = False
+                    file_new['new'] = False
+                    if file_old['file'] != file_new['file']:
+                        dnotify(name,file_old['name'] + ' has changed.')
+            if file_old['removed']:
+                dnotify(name,file_old['name'] + ' has been removed.')
+
+        for file_new in data_new:
+            if file_new['new']:
+                dnotify(name,file_new['name'] + ' has been added.')
+
+    def __repr__(self):
+        return('Filechange(' + self.ftype + ')')
+
+
 
 
 def send_mail(tracker, plain = "", html = None, attachments = []):
