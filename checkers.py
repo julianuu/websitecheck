@@ -12,12 +12,45 @@ import gi
 gi.require_version('Notify', '0.7')
 from gi.repository import Notify #desktop notifications, requires python-gobject
 
-class Notifier:
-    def notify(self, name, url, sels, old_data, new_data):
-        raise NotImplementedError("Please implement this method")
+#file handling
+from os import listdir, remove, makedirs
+from os.path import isfile, basename, join as join_path
 
-class Diff(Notifier):
-    def notify(self, name, url, sels, data_old, data_new):
+
+class Checker:
+    def read(self, f):
+        return BeautifulSoup(f, 'html.parser')
+
+    def to_string(self, o):
+        return o.prettify()
+
+    def get_old_data(self, path):
+        old_files = sorted([f for f in listdir(path) if isfile(join_path(path,f))], key=int)
+        old_paths = [join_path(path, f) for f in old_files]
+        old_data = []
+        for p in old_paths:
+            with open(p, 'r') as old_file:
+                old_data.append(self.read(old_file)) 
+            remove(p)
+        return old_data
+
+    def get_new_data(self, data, path):
+        return data
+
+    def save(self, path, data):
+        for idx, snippet in enumerate(data):
+            with open(join_path(path, str(idx)), 'w') as new_file:
+                new_file.write(self.to_string(snippet))
+
+    def check(self, name, url, data, dir_l, silent=False):
+        data_old = self.get_old_data(dir_l)
+        data_new = self.get_new_data(data, url)
+        if not silent: self.notify(name, url, data_old, data_new)
+        self.save(dir_l, data_new)
+
+
+class Diff(Checker):
+    def notify(self, name, url, data_old, data_new):
         l_old = len(data_old)
         l_new = len(data_new)
         l = min(l_old,l_new)

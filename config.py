@@ -1,7 +1,7 @@
 import os.path
 from tracker import Tracker
 from selectors import FindAll
-from notifiers import Diff
+from checkers import Diff
 
 target_address = ""
 home = os.path.dirname(os.path.abspath(__file__))
