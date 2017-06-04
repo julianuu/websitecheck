@@ -13,7 +13,7 @@ gi.require_version('Notify', '0.7')
 from gi.repository import Notify #desktop notifications, requires python-gobject
 
 #file handling
-from os import listdir, remove, makedirs
+from os import listdir, remove
 from os.path import isfile, basename, join as join_path
 
 

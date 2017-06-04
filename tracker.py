@@ -6,6 +6,7 @@ import urllib.request  # for fetching websites
 from bs4 import BeautifulSoup   # for HTML parsing
 
 # for file system operations
+from os import makedirs
 from os.path import join as join_path, exists
 
 from selectors import Selector
