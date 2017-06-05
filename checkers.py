@@ -47,9 +47,11 @@ class Checker:
     def check(self, name, url, data, dir_l, silent=False):
         data_old = self.get_old_data(dir_l)
         data_new = self.get_new_data(data, url)
-        if not silent: self.notify(name, url, data_old, data_new)
-        empty(dir_l)
-        self.save(dir_l, data_new)
+        change = True
+        if not silent: change = self.notify(name, url, data_old, data_new)
+        if change:
+            empty(dir_l)
+            self.save(dir_l, data_new)
 
 def dnotify(*args, **kwargs):
     Notify.init('websitecheck')
@@ -58,6 +60,7 @@ def dnotify(*args, **kwargs):
 
 class Diff(Checker):
     def notify(self, name, url, data_old, data_new):
+        change = False
         l_old = len(data_old)
         l_new = len(data_new)
         l = min(l_old,l_new)
@@ -74,15 +77,19 @@ class Diff(Checker):
             if i>o: #only notify if the strings actually differ
                 print(name+':\n'+msg)
                 dnotify(name,msg)
+                change = True
         if l_new>l_old: #data has been added
             msg = 'Occurrences have been added:\n'
             for i in range(l_old,l_new):
                 msg += data_new[i].prettify()
             print(name+':\n'+msg)
             dnotify(name,msg)
+            change = True
         elif l_new<l_old: #data has been removed
             pass
             #TODO: maybe do something here
+        return change
+
     def __repr__(self):
         return 'Diff()'
 
@@ -117,6 +124,7 @@ class Filechange(Checker):
                 new_file.write(entry['file'])
 
     def notify(self, name, url, data_old, data_new):
+        change = False
         for file_old in data_old:
             for file_new in data_new:
                 if file_old['name'] == file_new['name']:
@@ -124,12 +132,15 @@ class Filechange(Checker):
                     file_new['new'] = False
                     if file_old['file'] != file_new['file']:
                         dnotify(name,file_old['name'] + ' has changed.')
+                        change = True
             if file_old['removed']:
                 dnotify(name,file_old['name'] + ' has been removed.')
-
+                change = True
         for file_new in data_new:
             if file_new['new']:
                 dnotify(name,file_new['name'] + ' has been added.')
+                change = True
+        return change
 
     def __repr__(self):
         return('Filechange(' + self.ftype + ')')
