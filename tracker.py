@@ -12,6 +12,8 @@ from os.path import join as join_path, exists
 from selectors import Selector
 from checkers import Checker
 
+def pathify(s):
+    return s.replace("/", "%2F")
 
 # Tracks a (part of a) Website
 class Tracker:
@@ -48,7 +50,7 @@ class Tracker:
 
                 # determine cache directory for the current query
                 selstr = '.'.join(list(map(lambda s: repr(s), selectionsDone)))
-                c_dir = join_path(self.w_dir, self.url.replace("/", "%2F"), selstr, repr(a)) 
+                c_dir = join_path(self.w_dir, pathify(self.url), pathify(selstr), pathify(repr(a))) 
 
                 if exists(c_dir):
                     a.check(self.name, self.url, data, c_dir)
