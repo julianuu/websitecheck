@@ -109,7 +109,7 @@ class Filechange(Checker):
     def get_new_data(self, data, url):
         new_data = []
         for soup in data:
-            for tag in soup.findAll('a', href=re.compile('.*\.'+self.ftype)):
+            for tag in soup.findAll('a', href=re.compile('.*\.'+self.ftype)): #generalize so that the whole regex is a parameter of the class?
                 link = quote(tag['href'], safe="%/:=&?~#+!$,;'@()*[]") #whitespaces, but so that quote doesn't change the ':' in 'http://…'
                 name = basename(link)
                 if not link.startswith('http'):
@@ -123,7 +123,7 @@ class Filechange(Checker):
             with open(join_path(path,entry['name']), 'wb') as new_file:
                 new_file.write(entry['file'])
 
-    def notify(self, name, url, data_old, data_new):
+    def notify(self, name, url, data_old, data_new): #missing: handle the case, that multiple files with the same name appear on the site
         change = False
         for file_old in data_old:
             for file_new in data_new:
