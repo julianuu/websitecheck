@@ -123,7 +123,7 @@ class Filechange(Checker):
             with open(join_path(path,entry['name']), 'wb') as new_file:
                 new_file.write(entry['file'])
     
-    def notify(name,text):
+    def notify(self,name,text):
         print(name+': '+text)
         dnotify(name,text)
         self.change=True
