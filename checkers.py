@@ -83,7 +83,7 @@ class Diff(Checker):
             for i in range(l_old,l_new):
                 msg += data_new[i].prettify()
             print(name+':\n'+msg)
-            dnotify(name,msg)
+            dnotify(name,msg) #Idea: also open the saved file in webbrowser of choice. Thedesktpo notification is hardly readable if the change is big
             change = True
         elif l_new<l_old: #data has been removed
             pass
