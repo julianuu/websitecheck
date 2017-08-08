@@ -21,7 +21,7 @@ class Tracker:
         self.w_dir = w_dir
         # fetch new data
         with urllib.request.urlopen(self.url) as response:
-            data = [BeautifulSoup(response, 'html.parser')]
+            data = [BeautifulSoup(response, 'html5lib')]
 
         # start the recursion
         self.__iterate__(data, [], self.actions)
