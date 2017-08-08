@@ -1,5 +1,3 @@
-from config import target_address
-
 from bs4 import BeautifulSoup   # for HTML parsing
 
 from difflib import unified_diff
@@ -51,6 +49,7 @@ class Diff(Notifier):
 
 
 def send_mail(tracker, plain = "", html = None, attachments = []):
+    from config import target_address
     # Temporary solution to avoid using a local SMTP server.
     me = "websitecheck101@gmail.com"
     # Temporary ugliness to avoid commiting the password.
