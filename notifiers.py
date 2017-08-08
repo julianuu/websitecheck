@@ -1,16 +1,17 @@
-#from config import target_address #This does not work atm because we need to import this file into config.py and cant import it backe again I think
+from config import target_address
 
 from bs4 import BeautifulSoup   # for HTML parsing
-# Import smtplib for the actual sending function
-import smtplib
-
-# Import the email modules we'll need
-from email.mime.text import MIMEText
 
 from difflib import unified_diff
+
+# for email notifications:
+import smtplib  # for sending email
+from email.mime.text import MIMEText
+
+# for desktop notifications (requires python-gobject)
 import gi
 gi.require_version('Notify', '0.7')
-from gi.repository import Notify #desktop notifications, requires python-gobject
+from gi.repository import Notify
 
 class Notifier:
     def notify(self, name, url, sels, old_data, new_data):

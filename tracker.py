@@ -1,8 +1,4 @@
 import urllib.request  # for fetching websites
-'''
-    BeautifulSoup is not in the Python standard library.
-    Need to install python-beautifulsoup4 in Arch Linux.
-'''
 from bs4 import BeautifulSoup   # for HTML parsing
 
 # for file system operations
@@ -14,7 +10,6 @@ from selectors import Selector
 from notifiers import Notifier
 
 
-# Tracks a (part of a) Website
 class Tracker:
     def __init__(self, name, url, actions):
         self.name = name
