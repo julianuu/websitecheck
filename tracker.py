@@ -21,6 +21,8 @@ class Tracker:
         self.w_dir = w_dir
         # fetch new data
         with urllib.request.urlopen(self.url) as response:
+            # We use the html5lib parser which is not built-in.
+            # Alternatively, replace 'html5lib' by 'html.parser' for the less lenient built-in parser.
             data = [BeautifulSoup(response, 'html5lib')]
 
         # start the recursion
