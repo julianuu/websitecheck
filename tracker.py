@@ -2,13 +2,14 @@ import urllib.request  # for fetching websites
 from bs4 import BeautifulSoup   # for HTML parsing
 
 # for file system operations
-from os import listdir, remove, makedirs
-from os.path import isfile, exists, basename
-from os.path import join as join_path
+from os import makedirs
+from os.path import join as join_path, exists
 
 from selectors import Selector
-from notifiers import Notifier
+from checkers import Checker
 
+def pathify(s):
+    return s.replace("/", "%2F")
 
 class Tracker:
     def __init__(self, name, url, actions):
@@ -39,37 +40,23 @@ class Tracker:
 
         for a in actions:
             if isinstance(a, Selector):     # This action is a selector.
-                my_data = a.select(data)    # call the selector
+                data_new = a.select(data)    # call the selector
                 my_selectionsDone = selectionsDone + [a]
-            elif isinstance(a, Notifier):   # This action is a notifier.
-                my_data = data
+            elif isinstance(a, Checker):   # This action is a notifier.
                 my_selectionsDone = selectionsDone
 
                 # determine cache directory for the current query
                 selstr = '.'.join(list(map(lambda s: repr(s), selectionsDone)))
-                my_dir = join_path(self.w_dir, self.url.replace("/", "%2F"), selstr) 
+                c_dir = join_path(self.w_dir, pathify(self.url), pathify(selstr), pathify(repr(a))) 
 
-                if exists(my_dir):
-                    # fetch old data
-                    old_files = sorted([f for f in listdir(my_dir) if isfile(join_path(my_dir,f))], key=int)
-                    old_paths = [join_path(my_dir, f) for f in old_files]
-                    old_data = []
-                    for p in old_paths:
-                        with open(p, 'r') as old_file:
-                            old_data.append(BeautifulSoup(old_file, 'html.parser')) 
-                    # call the notifier
-                    a.notify(self.name, self.url, selectionsDone, old_data, my_data)
-                    
-                    # remove old snippets from cache
-                    for p in old_paths:
-                        remove(p)
+                if exists(c_dir):
+                    a.check(self.name, self.url, data, c_dir)
+
                 else:
                     print("New website added: "+self.name)
-                    makedirs(my_dir)
+                    makedirs(c_dir)
+                    a.check(self.name, self.url, data, c_dir, silent=True)
 
-                # store new snippets in cache
-                for idx, snippet in enumerate(data):
-                    with open(join_path(my_dir, str(idx)), 'w') as new_file:
-                        new_file.write(snippet.prettify())
+                data_new = data
 
-            self.__iterate__(my_data, my_selectionsDone, actionsPending[1:])
+            self.__iterate__(data_new, my_selectionsDone, actionsPending[1:])
