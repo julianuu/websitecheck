@@ -32,8 +32,9 @@ class Checker:
         old_paths = [join_path(path, f) for f in old_files]
         old_data = []
         for p in old_paths:
-            with open(p, 'r') as f: 
-                old_data.append(BeautifulSoup(f, 'html.parser')) 
+            with open(p, 'r') as f:
+                from config import html_parser
+                old_data.append(BeautifulSoup(f, html_parser))
         return old_data
 
     def get_new_data(self, data, url):
