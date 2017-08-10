@@ -8,6 +8,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 from difflib import unified_diff
+
 import gi
 gi.require_version('Notify', '0.7')
 from gi.repository import Notify #desktop notifications, requires python-gobject
@@ -49,14 +50,15 @@ class Checker:
         data_old = self.get_old_data(dir_l)
         data_new = self.get_new_data(data, url)
         change = True
-        if not silent: change = self.compare(name, url, data_old, data_new)
+        if not silent:
+            change = self.compare(name, url, data_old, data_new)
         if change:
             empty(dir_l)
             self.save(dir_l, data_new)
 
 def dnotify(*args, **kwargs):
     Notify.init('websitecheck')
-    n=Notify.Notification.new(*args, **kwargs)
+    n = Notify.Notification.new(*args, **kwargs)
     n.show()
 
 class Diff(Checker):

@@ -19,10 +19,12 @@ class Tracker:
 
 
     def check(self, w_dir):
+        from config import html_parser
+
         self.w_dir = w_dir
+
         # fetch new data
         with urllib.request.urlopen(self.url) as response:
-            from config import html_parser
             data = [BeautifulSoup(response, html_parser)]
 
         # start the recursion
@@ -41,7 +43,8 @@ class Tracker:
             if isinstance(a, Selector):     # This action is a selector.
                 data_new = a.select(data)    # call the selector
                 my_selectionsDone = selectionsDone + [a]
-            elif isinstance(a, Checker):   # This action is a notifier.
+            elif isinstance(a, Checker):   # This action is a checker.
+                data_new = data
                 my_selectionsDone = selectionsDone
 
                 # determine cache directory for the current query
@@ -52,10 +55,8 @@ class Tracker:
                     a.check(self.name, self.url, data, c_dir)
 
                 else:
-                    print("New website added: "+self.name)
+                    print("New website added: " + self.name)
                     makedirs(c_dir)
                     a.check(self.name, self.url, data, c_dir, silent=True)
-
-                data_new = data
 
             self.__iterate__(data_new, my_selectionsDone, actionsPending[1:])
