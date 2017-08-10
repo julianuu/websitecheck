@@ -1,2 +1,3 @@
 .websitecheck/
 __pycache__/
+config.py

@@ -15,6 +15,8 @@ target_address=""
 # Currently, there is a bug associated to html5lib
 html_parser="html.parser"
 
+sites = []
+
 # Sample tracker configuration:
 #
 #wi = Tracker("weighted_inequalities", "http://www.math.uni-bonn.de/ag/ana/SoSe2017/weights/", [FindAll(id="col1_content"),Diff(),Filechange('pdf'),Filechange('djvu')])
