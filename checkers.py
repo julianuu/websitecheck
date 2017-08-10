@@ -22,12 +22,16 @@ import re
 from os import listdir, remove
 from os.path import isfile, basename, join as join_path, dirname
 
+# TODO: Make some of the methods below "private" by encapsulating them in double underscores
 
+# TODO: Where do we use this?
 def empty(path):
     for p in [join_path(path,f) for f in listdir(path) if isfile(join_path(path,f))]:
         remove(p)
 
 class Checker:
+    # TODO: Shouldn't we make this an "abstract" method (via NotImplementedError) and move
+    #       the implementation to Diff(Checker)?
     def get_old_data(self, path):
         old_files = sorted([f for f in listdir(path) if isfile(join_path(path,f))], key=int)
         old_paths = [join_path(path, f) for f in old_files]
@@ -38,6 +42,7 @@ class Checker:
                 old_data.append(BeautifulSoup(f, html_parser))
         return old_data
 
+    # TODO: Same as above
     def get_new_data(self, data, url):
         return data
 
@@ -86,7 +91,7 @@ class Diff(Checker):
             for i in range(l_old,l_new):
                 msg += data_new[i].prettify()
             print(name+':\n'+msg)
-            dnotify(name,msg) #Idea: also open the saved file in webbrowser of choice. Thedesktpo notification is hardly readable if the change is big
+            dnotify(name,msg) #TODO: also open the saved file in webbrowser of choice. Thedesktop notification is hardly readable if the change is big
             change = True
         elif l_new<l_old: #data has been removed
             pass
@@ -112,10 +117,10 @@ class Filechange(Checker):
     def get_new_data(self, data, url):
         new_data = []
         for soup in data:
-            for tag in soup.findAll('a', href=re.compile('.*\.'+self.ftype)): #generalize so that the whole regex is a parameter of the class?
+            for tag in soup.findAll('a', href=re.compile('.*\.'+self.ftype)): # TODO: Generalize so that the whole regex is a parameter of the class?
                 link = quote(tag['href'], safe="%/:=&?~#+!$,;'@()*[]") #whitespaces, but so that quote doesn't change the ':' in 'http://…'
                 name = basename(link)
-                if not link.startswith('http'):
+                if not link.startswith('http'):     # TODO: Is this detection of relative links reliable?
                     link = join_path(dirname(url),link)
                 response = urllib.request.urlopen(link)
                 new_data.append({'name':name, 'file':response.read(), 'new':True})
@@ -131,8 +136,9 @@ class Filechange(Checker):
         dnotify(name,text)
         self.change=True
 
-    def compare(self, name, url, data_old, data_new): #missing: handle the case, that multiple files with the same name appear on the site
+    def compare(self, name, url, data_old, data_new): # TODO: missing: handle the case that multiple files with the same name appear on the site
         self.change = False
+        # TODO: We can surely the running time here :)
         for file_old in data_old:
             for file_new in data_new:
                 if file_old['name'] == file_new['name']:
@@ -151,8 +157,7 @@ class Filechange(Checker):
         return('Filechange(' + self.ftype + ')')
 
 
-
-
+# TODO: Does this belong here?
 def send_mail(tracker, plain = "", html = None, attachments = []):
     # Temporary solution to avoid using a local SMTP server.
     me = "websitecheck101@gmail.com"

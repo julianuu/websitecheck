@@ -21,6 +21,7 @@ class Tracker:
     def check(self, w_dir):
         from config import html_parser
 
+        # TODO: This is a hack, not good practice
         self.w_dir = w_dir
 
         # fetch new data
@@ -31,11 +32,14 @@ class Tracker:
         self.__iterate__(data, [], self.actions)
 
 
+    # TODO: Maybe allow trees of actions
+    # TODO: The current implementation of alternative actions does not make too much sense
     def __iterate__(self, data, selectionsDone, actionsPending):
         if len(actionsPending) == 0:
             return  # leave because we are at a leaf
 
         actions = actionsPending[0]
+        # TODO: Currently, actions will almost never be a list because of the implementation
         if not isinstance(actions, list):
             actions = [actions]
 
