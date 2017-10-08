@@ -109,7 +109,7 @@ class Filechange(Checker):
     def get_new_data(self, data, url):
         new_data = []
         for soup in data:
-            for tag in soup.findAll('a', href=re.compile('.*\.'+self.ftype)): #generalize so that the whole regex is a parameter of the class?
+            for tag in soup.findAll('a', href=re.compile('\.'+self.ftype+'$')): #generalize so that the whole regex is a parameter of the class?
                 link = quote(tag['href'], safe="%/:=&?~#+!$,;'@()*[]") #whitespaces, but so that quote doesn't change the ':' in 'http://…'
                 name = basename(link)
                 if not link.startswith('http'):
