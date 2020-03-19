@@ -13,7 +13,7 @@ gi.require_version('Notify', '0.7')
 from gi.repository import Notify #desktop notifications, requires python-gobject
 
 import urllib.request  # for fetching files
-from urllib.parse import quote
+from urllib.parse import quote, urljoin
 
 import re
 
@@ -111,9 +111,10 @@ class Filechange(Checker):
         for soup in data:
             for tag in soup.findAll('a', href=re.compile('\.'+self.ftype+'$')): #generalize so that the whole regex is a parameter of the class?
                 link = quote(tag['href'], safe="%/:=&?~#+!$,;'@()*[]") #whitespaces, but so that quote doesn't change the ':' in 'http://…'
-                name = basename(link)
-                if not link.startswith('http'):
-                    link = join_path(dirname(url),link)
+               # name = basename(link)
+               # if not link.startswith('http'):
+               #     link = urljoin(url,link)
+                link = urljoin(url,link)
                 response = urllib.request.urlopen(link)
                 new_data.append({'name':name, 'file':response.read(), 'new':True})
         return new_data
